@@ -1,0 +1,12 @@
+123456
+password
+123456789
+qwerty
+abc123
+admin
+mexico
+monkey
+letmein
+dragon
+...
+(agrega las que quieras)
