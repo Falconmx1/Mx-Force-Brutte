@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MxForce Brutte - Web Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #00ff41;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 30px;
+            border-bottom: 2px solid #00ff41;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 3em;
+            text-shadow: 0 0 10px #00ff41;
+        }
+        
+        .nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .nav-btn {
+            background: #0f3460;
+            color: #00ff41;
+            border: 1px solid #00ff41;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: monospace;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+        
+        .nav-btn:hover {
+            background: #00ff41;
+            color: #0f3460;
+        }
+        
+        .panel {
+            background: rgba(15, 52, 96, 0.8);
+            border: 1px solid #00ff41;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .panel.active {
+            display: block;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background: #0a0a0a;
+            border: 1px solid #00ff41;
+            color: #00ff41;
+            font-family: monospace;
+        }
+        
+        button {
+            background: #00ff41;
+            color: #0a0a0a;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: monospace;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background: #00cc33;
+        }
+        
+        .output {
+            background: #0a0a0a;
+            border: 1px solid #00ff41;
+            padding: 15px;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            font-size: 0.9em;
+        }
+        
+        .status {
+            padding: 10px;
+            margin-top: 10px;
+            background: #0f3460;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            border-top: 1px solid #00ff41;
+            color: #666;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        .blink {
+            animation: blink 1s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔓 MxForce Brutte</h1>
+            <p>"La seguridad no existe, solo contraseñas que no hemos roto"</p>
+        </div>
+        
+        <div class="nav">
+            <button class="nav-btn" data-panel="hash">🔐 Hash Cracker</button>
+            <button class="nav-btn" data-panel="http">🌐 HTTP Brute</button>
+            <button class="nav-btn" data-panel="ssh">🖥️ SSH Attack</button>
+            <button class="nav-btn" data-panel="rdp">💻 RDP Attack</button>
+            <button class="nav-btn" data-panel="db">🗄️ Database</button>
+            <button class="nav-btn" data-panel="wifi">📡 WiFi WPA2</button>
+        </div>
+        
+        <!-- Panel Hash -->
+        <div id="hash" class="panel">
+            <h2>🔐 Crackeador de Hashes</h2>
+            <input type="text" id="hash_value" placeholder="Hash objetivo (MD5, SHA1, SHA256, SHA512, NTLM, bcrypt)">
+            <input type="text" id="hash_wordlist" placeholder="Wordlist path">
+            <button onclick="crackHash()">🚀 Iniciar Crackeo</button>
+            <div id="hash_output" class="output"></div>
+        </div>
+        
+        <!-- Panel HTTP -->
+        <div id="http" class="panel">
+            <h2>🌐 Fuerza Bruta HTTP</h2>
+            <input type="text" id="http_url" placeholder="URL objetivo (ej: http://target.com/login)">
+            <input type="text" id="http_user" placeholder="Usuario">
+            <input type="text" id="http_wordlist" placeholder="Wordlist path">
+            <button onclick="bruteHTTP()">🚀 Iniciar Ataque</button>
+            <div id="http_output" class="output"></div>
+        </div>
+        
+        <!-- Panel SSH -->
+        <div id="ssh" class="panel">
+            <h2>🖥️ Ataque SSH</h2>
+            <input type="text" id="ssh_host" placeholder="Host objetivo">
+            <input type="text" id="ssh_user" placeholder="Usuario">
+            <input type="text" id="ssh_wordlist" placeholder="Wordlist path">
+            <input type="number" id="ssh_port" placeholder="Puerto (default: 22)" value="22">
+            <button onclick="attackSSH()">🚀 Iniciar Ataque</button>
+            <div id="ssh_output" class="output"></div>
+        </div>
+        
+        <!-- Panel RDP -->
+        <div id="rdp" class="panel">
+            <h2>💻 Ataque RDP</h2>
+            <input type="text" id="rdp_host" placeholder="Host objetivo">
+            <input type="text" id="rdp_user" placeholder="Usuario">
+            <input type="text" id="rdp_wordlist" placeholder="Wordlist path">
+            <button onclick="attackRDP()">🚀 Iniciar Ataque</button>
+            <div id="rdp_output" class="output"></div>
+        </div>
+        
+        <!-- Panel Database -->
+        <div id="db" class="panel">
+            <h2>🗄️ Ataque a Bases de Datos</h2>
+            <select id="db_type">
+                <option value="mysql">MySQL</option>
+                <option value="postgresql">PostgreSQL</option>
+            </select>
+            <input type="text" id="db_host" placeholder="Host objetivo">
+            <input type="text" id="db_user" placeholder="Usuario">
+            <input type="text" id="db_wordlist" placeholder="Wordlist path">
+            <input type="number" id="db_port" placeholder="Puerto">
+            <button onclick="attackDB()">🚀 Iniciar Ataque</button>
+            <div id="db_output" class="output"></div>
+        </div>
+        
+        <!-- Panel WiFi -->
+        <div id="wifi" class="panel">
+            <h2>📡 Captura y Crackeo WPA2</h2>
+            <input type="text" id="wifi_interface" placeholder="Interfaz WiFi (ej: wlan0)">
+            <input type="text" id="wifi_bssid" placeholder="BSSID objetivo (opcional)">
+            <input type="text" id="wifi_wordlist" placeholder="Wordlist para crackear">
+            <button onclick="attackWiFi()">🚀 Iniciar Captura</button>
+            <div id="wifi_output" class="output"></div>
+            <div class="status blink">⚠️ Requiere permisos root y aircrack-ng instalado</div>
+        </div>
+        
+        <div class="footer">
+            <p>MxForce Brutte v3.0 - Herramienta educativa para pentesters autorizados</p>
+        </div>
+    </div>
+    
+    <script>
+        // Navegación entre paneles
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const panel = btn.dataset.panel;
+                document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+                document.getElementById(panel).classList.add('active');
+            });
+        });
+        
+        // Activar primer panel
+        document.getElementById('hash').classList.add('active');
+        
+        // Funciones API
+        async function crackHash() {
+            const hash = document.getElementById('hash_value').value;
+            const wordlist = document.getElementById('hash_wordlist').value;
+            const output = document.getElementById('hash_output');
+            
+            output.innerHTML = '<div class="status">⏳ Ejecutando ataque...</div>';
+            
+            const response = await fetch('/api/hash/crack', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({hash: hash, wordlist: wordlist})
+            });
+            
+            const data = await response.json();
+            output.innerHTML = `<pre>${data.output}</pre>`;
+            if(data.error) output.innerHTML += `<div class="status">❌ Error: ${data.error}</div>`;
+        }
+        
+        async function bruteHTTP() {
+            const url = document.getElementById('http_url').value;
+            const username = document.getElementById('http_user').value;
+            const wordlist = document.getElementById('http_wordlist').value;
+            const output = document.getElementById('http_output');
+            
+            output.innerHTML = '<div class="status">⏳ Ejecutando ataque...</div>';
+            
+            const response = await fetch('/api/http/brute', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({url: url, username: username, wordlist: wordlist})
+            });
+            
+            const data = await response.json();
+            output.innerHTML = `<pre>${data.output}</pre>`;
+        }
+        
+        async function attackSSH() {
+            alert("Funcionalidad SSH - Próximamente en la API");
+        }
+        
+        async function attackRDP() {
+            alert("Funcionalidad RDP - Próximamente en la API");
+        }
+        
+        async function attackDB() {
+            alert("Funcionalidad DB - Próximamente en la API");
+        }
+        
+        async function attackWiFi() {
+            alert("Funcionalidad WiFi - Requiere ejecución en terminal con sudo");
+        }
+    </script>
+</body>
+</html>
